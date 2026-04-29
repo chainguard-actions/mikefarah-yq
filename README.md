@@ -1,6 +1,12 @@
 # mikefarah/yq
 
-Hardened GitHub Action by [Chainguard](https://www.chainguard.dev).
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/mikefarah/yq](https://github.com/mikefarah/yq).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v4.52.5 | [`v4.52.5`](https://github.com/chainguard-actions/yq/tree/v4.52.5) | — |
 
 ## Privacy
 
