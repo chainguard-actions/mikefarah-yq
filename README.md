@@ -1,5 +1,7 @@
 # mikefarah/yq
 
+yq is a portable command-line YAML, JSON, XML, CSV, TOML, HCL  and properties processor
+
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/mikefarah/yq](https://github.com/mikefarah/yq).
 
 ## Versions
