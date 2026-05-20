@@ -1,7 +1,0 @@
-{
-  "owner": "mikefarah",
-  "name": "yq",
-  "visibility": "internal",
-  "description": "yq is a portable command-line YAML, JSON, XML, CSV, TOML, HCL  and properties processor",
-  "block_publish": false
-}
