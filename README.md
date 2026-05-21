@@ -8,7 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
-| v4.52.5 | [`v4.52.5`](https://github.com/chainguard-actions/mikefarah--yq/tree/v4.52.5) | — |
+| v4.52.5 | [`v4.52.5`](https://github.com/chainguard-actions/mikefarah-yq/tree/v4.52.5) | — |
 
 ## Privacy
 
