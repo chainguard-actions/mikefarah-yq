@@ -9,14 +9,14 @@ jobs:
       - id: action
         uses: .
         with:
-          cmd: eval '.name' - <<< 'name: hello-world'
+          cmd: eval '.greeting' - <<< 'greeting: hello'
       - name: Assert result contains expected value
         env:
           ACTUAL: ${{ steps.action.outputs.result }}
         run: |
           echo "actual: $ACTUAL"
-          if [ "$ACTUAL" != "hello-world" ]; then
-            echo "FAIL: expected 'hello-world', got '$ACTUAL'"
+          if [ "$ACTUAL" != "hello" ]; then
+            echo "FAIL: expected 'hello' but got '$ACTUAL'"
             exit 1
           fi
           echo "PASS"
