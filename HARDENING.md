@@ -14,11 +14,11 @@ Action **mikefarah--yq/v4.53.3** was hardened automatically. 1 finding(s) were i
 
 ### unpinned-uses (severity: high)
 
-The action.yml uses a Docker image with a mutable tag instead of a SHA digest. The image reference `docker://mikefarah/yq:4-githubaction` uses the tag `4-githubaction`, which can be silently replaced with a different (potentially malicious) image. It should be pinned to a specific SHA256 digest, e.g., `docker://mikefarah/yq@sha256:<64-hex-char-digest>`.
+The action.yml uses a Docker image reference with a mutable tag (`docker://mikefarah/yq:4-githubaction`) instead of an immutable SHA digest. This means the image pulled at runtime could change without notice, enabling supply-chain attacks. It should be pinned to a specific SHA digest, e.g. `docker://mikefarah/yq@sha256:<64-hex-char-digest>`.
 
 Locations:
 
-- `action.yml:15`
+- `action.yml:13`
 
 ## Iteration Notes
 
@@ -28,5 +28,5 @@ Locations:
 
 **Notes:**
 
-Replaced the mutable Docker image tag `docker://mikefarah/yq:4-githubaction` with the pinned immutable digest `docker://mikefarah/yq@sha256:e1b8c865f299ea6b02910a7ddf147d5d431244d4cc116f89c2148c9f53822906` in action.yml line 15. The original tag is preserved as a comment for readability.
+Pinned the Docker image reference in action.yml from the mutable tag `docker://mikefarah/yq:4-githubaction` to the immutable digest `docker://mikefarah/yq@sha256:e1b8c865f299ea6b02910a7ddf147d5d431244d4cc116f89c2148c9f53822906` (with `# 4-githubaction` comment outside the YAML string for readability).
 
