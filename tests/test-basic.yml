@@ -10,7 +10,7 @@ jobs:
         uses: .
         with:
           cmd: eval '.greeting' - <<< 'greeting: hello'
-      - name: Assert result contains expected value
+      - name: Assert result output
         env:
           ACTUAL: ${{ steps.action.outputs.result }}
         run: |
