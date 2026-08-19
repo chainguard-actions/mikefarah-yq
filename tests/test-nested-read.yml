@@ -1,0 +1,23 @@
+name: Test yq nested value read
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          cmd: |-
+            printf 'person:\n  age: 30\n' | yq '.person.age'
+      - name: Assert nested value
+        env:
+          ACTUAL: ${{ steps.action.outputs.result }}
+        run: |
+          echo "actual: $ACTUAL"
+          if [ "$ACTUAL" != "30" ]; then
+            echo "FAIL: expected '30' but got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS"

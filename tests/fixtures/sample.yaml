@@ -1,0 +1,12 @@
+name: hello-world
+person:
+  name: Alice
+  age: 30
+service:
+  name: my-service
+  port: 8080
+items:
+  - name: alpha
+    active: true
+  - name: beta
+    active: false

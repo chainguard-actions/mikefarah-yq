@@ -1,0 +1,23 @@
+name: Test yq read from file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          cmd: |-
+            printf 'service:\n  port: 8080\n' | yq '.service.port'
+      - name: Assert service port value
+        env:
+          ACTUAL: ${{ steps.action.outputs.result }}
+        run: |
+          echo "actual: $ACTUAL"
+          if [ "$ACTUAL" != "8080" ]; then
+            echo "FAIL: expected '8080' but got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS"

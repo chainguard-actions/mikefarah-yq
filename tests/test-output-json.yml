@@ -1,0 +1,27 @@
+name: Test yq output as JSON
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          cmd: |-
+            printf 'service:\n  name: my-service\n  port: 8080\n' | yq -o=json '.service'
+      - name: Assert JSON output contains service name
+        env:
+          ACTUAL: ${{ steps.action.outputs.result }}
+        run: |
+          echo "actual: $ACTUAL"
+          if ! echo "$ACTUAL" | grep -q '"name"'; then
+            echo "FAIL: expected JSON output with 'name' key but got '$ACTUAL'"
+            exit 1
+          fi
+          if ! echo "$ACTUAL" | grep -q '"my-service"'; then
+            echo "FAIL: expected JSON output with 'my-service' value but got '$ACTUAL'"
+            exit 1
+          fi
+          echo "PASS"
