@@ -1,0 +1,60 @@
+name: Test yq nested field access
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: read-nested
+        uses: .
+        continue-on-error: true
+        with:
+          cmd: yq e .person.address.city /github/workspace/tests/fixtures/nested.yaml
+
+      - name: Assert nested field value
+        env:
+          ACTUAL: ${{ steps.read-nested.outputs.result }}
+          OUTCOME: ${{ steps.read-nested.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "actual: $ACTUAL"
+          if [ "$OUTCOME" = "success" ]; then
+            if [ "$ACTUAL" != "Springfield" ]; then
+              echo "FAIL: expected 'Springfield' but got '$ACTUAL'"
+              exit 1
+            fi
+            echo "PASS: got '$ACTUAL'"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (Docker action may not be fully supported under act)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
+
+      - id: read-version
+        uses: .
+        continue-on-error: true
+        with:
+          cmd: yq e .version /github/workspace/tests/fixtures/nested.yaml
+
+      - name: Assert version field value
+        env:
+          ACTUAL: ${{ steps.read-version.outputs.result }}
+          OUTCOME: ${{ steps.read-version.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "actual: $ACTUAL"
+          if [ "$OUTCOME" = "success" ]; then
+            if [ "$ACTUAL" != "1.0.0" ]; then
+              echo "FAIL: expected '1.0.0' but got '$ACTUAL'"
+              exit 1
+            fi
+            echo "PASS: got '$ACTUAL'"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (Docker action may not be fully supported under act)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

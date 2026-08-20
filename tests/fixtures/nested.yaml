@@ -1,0 +1,6 @@
+person:
+  name: Bob
+  address:
+    city: Springfield
+    zip: "12345"
+version: "1.0.0"
