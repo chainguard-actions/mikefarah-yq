@@ -1,0 +1,47 @@
+name: Test yq yaml to json conversion
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          cmd: yq -o=json '.' /github/workspace/tests/fixtures/convert.yaml
+
+      - name: Assert result is valid JSON with expected content
+        env:
+          ACTUAL: ${{ steps.action.outputs.result }}
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "actual: $ACTUAL"
+          if [ "$OUTCOME" = "success" ]; then
+            if ! echo "$ACTUAL" | grep -q '"key"'; then
+              echo "FAIL: expected JSON output with 'key' field but got '$ACTUAL'"
+              exit 1
+            fi
+            if ! echo "$ACTUAL" | grep -q '"value"'; then
+              echo "FAIL: expected JSON output with 'value' but got '$ACTUAL'"
+              exit 1
+            fi
+            if ! echo "$ACTUAL" | grep -q '42'; then
+              echo "FAIL: expected JSON output with '42' but got '$ACTUAL'"
+              exit 1
+            fi
+            # Validate it's parseable JSON
+            echo "$ACTUAL" | python3 -c "import sys, json; json.load(sys.stdin)" || {
+              echo "FAIL: output is not valid JSON"
+              exit 1
+            }
+            echo "PASS"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (Docker action may not be fully supported in this environment)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

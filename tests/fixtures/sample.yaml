@@ -1,0 +1,11 @@
+app:
+  name: my-app
+  version: 2.5.1
+  enabled: true
+  replicas: 3
+  tags:
+    - production
+    - stable
+  config:
+    port: 8080
+    debug: false

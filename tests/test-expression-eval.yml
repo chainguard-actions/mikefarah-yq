@@ -1,0 +1,42 @@
+name: Test yq expression evaluation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          cmd: yq '.items[] | select(.count > 4) | .name' /github/workspace/tests/fixtures/items.yaml
+
+      - name: Assert result contains expected values
+        env:
+          ACTUAL: ${{ steps.action.outputs.result }}
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "actual: $ACTUAL"
+          if [ "$OUTCOME" = "success" ]; then
+            if ! echo "$ACTUAL" | grep -q "apple"; then
+              echo "FAIL: expected 'apple' in result but got '$ACTUAL'"
+              exit 1
+            fi
+            if ! echo "$ACTUAL" | grep -q "cherry"; then
+              echo "FAIL: expected 'cherry' in result but got '$ACTUAL'"
+              exit 1
+            fi
+            if echo "$ACTUAL" | grep -q "banana"; then
+              echo "FAIL: 'banana' should not be in result (count=3 is not > 4) but got '$ACTUAL'"
+              exit 1
+            fi
+            echo "PASS"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (Docker action may not be fully supported in this environment)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

@@ -1,0 +1,30 @@
+name: Test Yq Action
+on: 
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Get test
+        id: get_value
+        uses: mikefarah/yq@c14f446382944492701b16c1ddb48bb9dbe683e3 # master
+        with:
+          cmd: yq '.test' examples/multiline-text.yaml
+      - name: Multiline test
+        env:
+          YQ_RESULT: ${{ steps.get_value.outputs.result }}
+        run: echo "### It was [$YQ_RESULT]" >> $GITHUB_STEP_SUMMARY
+      - name: Write inplace test
+        id: lookupSdkVersion
+        uses: mikefarah/yq@c14f446382944492701b16c1ddb48bb9dbe683e3 # master
+        with:
+          cmd: yq -i '.b.c = 5' examples/sample.yaml

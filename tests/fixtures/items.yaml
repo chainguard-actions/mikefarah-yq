@@ -1,0 +1,7 @@
+items:
+  - name: apple
+    count: 5
+  - name: banana
+    count: 3
+  - name: cherry
+    count: 8
