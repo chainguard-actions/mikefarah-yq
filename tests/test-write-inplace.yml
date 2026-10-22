@@ -1,0 +1,30 @@
+name: Test write in place
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare working copy
+        run: |
+          rm -rf yq-out-write
+          mkdir -p yq-out-write
+          cp tests/fixtures/sample.yaml yq-out-write/sample.yaml
+          chmod -R 777 yq-out-write
+      - id: action
+        uses: .
+        with:
+          cmd: yq w -i yq-out-write/sample.yaml a.b updated
+      - name: Assert file updated
+        run: |
+          cat yq-out-write/sample.yaml
+          if ! grep -qE '^  b: updated$' yq-out-write/sample.yaml; then
+            echo "FAIL: expected a.b to be 'updated'"
+            exit 1
+          fi
+          if ! grep -qE '^name: yq-test$' yq-out-write/sample.yaml; then
+            echo "FAIL: other keys should be preserved"
+            exit 1
+          fi
+          echo "PASS"

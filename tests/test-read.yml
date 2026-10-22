@@ -1,0 +1,26 @@
+name: Test read value
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare output dir
+        run: |
+          rm -rf yq-out-read
+          mkdir -p yq-out-read
+          chmod 777 yq-out-read
+      - id: action
+        uses: .
+        with:
+          cmd: yq r tests/fixtures/sample.yaml a.b > yq-out-read/result.txt
+      - name: Assert read value
+        run: |
+          ACTUAL="$(cat yq-out-read/result.txt | tr -d '[:space:]')"
+          echo "actual: $ACTUAL"
+          if [ "$ACTUAL" != "hello" ]; then
+            echo "FAIL: expected 'hello'"
+            exit 1
+          fi
+          echo "PASS"

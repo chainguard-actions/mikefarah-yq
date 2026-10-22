@@ -1,0 +1,29 @@
+name: Test new document
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare output dir
+        run: |
+          rm -rf yq-out-new
+          mkdir -p yq-out-new
+          chmod 777 yq-out-new
+      - id: action
+        uses: .
+        with:
+          cmd: yq n foo.bar baz > yq-out-new/new.yaml
+      - name: Assert new document
+        run: |
+          cat yq-out-new/new.yaml
+          if ! grep -qE '^foo:$' yq-out-new/new.yaml; then
+            echo "FAIL: missing 'foo:' key"
+            exit 1
+          fi
+          if ! grep -qE '^  bar: baz$' yq-out-new/new.yaml; then
+            echo "FAIL: missing 'bar: baz'"
+            exit 1
+          fi
+          echo "PASS"
