@@ -1,0 +1,22 @@
+name: Test null-input expression with no file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          cmd: yq -n '.greeting = "hello"'
+      - name: Assert result
+        env:
+          ACTUAL: ${{ steps.action.outputs.result }}
+        run: |
+          echo "actual: $ACTUAL"
+          if [ "$ACTUAL" != "greeting: hello" ]; then
+            echo "FAIL: expected 'greeting: hello'"
+            exit 1
+          fi
+          echo "PASS"

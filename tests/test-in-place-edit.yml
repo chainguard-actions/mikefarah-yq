@@ -1,0 +1,30 @@
+name: Test in-place edit of a workspace file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare editable copy
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/yq-tmp"
+          cp tests/fixtures/sample.yml "$GITHUB_WORKSPACE/yq-tmp/edit.yml"
+          chmod 666 "$GITHUB_WORKSPACE/yq-tmp/edit.yml"
+          chmod 777 "$GITHUB_WORKSPACE/yq-tmp"
+      - id: action
+        uses: .
+        with:
+          cmd: yq -i '.version = "9.9.9"' yq-tmp/edit.yml
+      - name: Assert file was modified
+        run: |
+          cat yq-tmp/edit.yml
+          if ! grep -qE '^version: "?9\.9\.9"?$' yq-tmp/edit.yml; then
+            echo "FAIL: version was not updated in place"
+            exit 1
+          fi
+          if ! grep -q '^name: demo$' yq-tmp/edit.yml; then
+            echo "FAIL: other keys were lost"
+            exit 1
+          fi
+          echo "PASS"

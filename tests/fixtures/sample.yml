@@ -1,0 +1,9 @@
+name: demo
+version: 1.2.3
+items:
+  - alpha
+  - beta
+  - gamma
+nested:
+  key: value
+  count: 3
