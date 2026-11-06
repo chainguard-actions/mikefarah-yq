@@ -1,0 +1,33 @@
+name: Test in-place update
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare working copy
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/yq-tmp"
+          cp tests/fixtures/sample.yaml "$GITHUB_WORKSPACE/yq-tmp/inplace.yaml"
+          chmod -R a+rwX "$GITHUB_WORKSPACE/yq-tmp"
+      - id: action
+        uses: .
+        with:
+          cmd: yq -i '.version = "2.0.0" | .added = "yes"' yq-tmp/inplace.yaml
+      - name: Assert file updated
+        run: |
+          cat "$GITHUB_WORKSPACE/yq-tmp/inplace.yaml"
+          if ! grep -qE '^version: "?2\.0\.0"?$' "$GITHUB_WORKSPACE/yq-tmp/inplace.yaml"; then
+            echo "FAIL: version not updated"
+            exit 1
+          fi
+          if ! grep -qE '^added: "?yes"?$' "$GITHUB_WORKSPACE/yq-tmp/inplace.yaml"; then
+            echo "FAIL: added key missing"
+            exit 1
+          fi
+          if ! grep -q '^name: demo$' "$GITHUB_WORKSPACE/yq-tmp/inplace.yaml"; then
+            echo "FAIL: existing key lost"
+            exit 1
+          fi
+          echo "PASS"

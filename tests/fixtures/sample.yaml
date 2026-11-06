@@ -1,0 +1,7 @@
+name: demo
+version: 1.2.3
+items:
+  - apple
+  - banana
+nested:
+  key: value

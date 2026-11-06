@@ -1,0 +1,245 @@
+package yqlib
+
+import (
+	"testing"
+)
+
+var mapOperatorScenarios = []expressionScenario{
+	{
+		skipDoc:    true,
+		document:   `[1,2,3]`,
+		document2:  `[5,6,7]`,
+		expression: `map(. + 1)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[2, 3, 4]\n",
+			"D0, P[], (!!seq)::[6, 7, 8]\n",
+		},
+	},
+	{
+		description: "mapping against an empty array should do nothing",
+		skipDoc:     true,
+		document:    `[]`,
+		document2:   `["cat"]`,
+		expression:  `map(3)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+			"D0, P[], (!!seq)::[3]\n",
+		},
+	},
+	{
+		description: "mapping against an empty array should do nothing",
+		skipDoc:     true,
+		document:    `[[], [5]]`,
+		expression:  `.[] |= map(3)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[[], [3]]\n",
+		},
+	},
+	{
+		description: "mapping against an empty array should do nothing #2",
+		skipDoc:     true,
+		document:    `[]`,
+		document2:   `[5]`,
+		expression:  `map(3 + .)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+			"D0, P[], (!!seq)::[8]\n",
+		},
+	},
+	{
+		description: "mapping against an empty array should do nothing",
+		skipDoc:     true,
+		document:    `[[], [5]]`,
+		expression:  `.[] |= map(3 + .)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[[], [8]]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `[] | map(. + 42)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[1,2]`,
+		expression: `map(. + 1)[]`,
+		expected: []string{
+			"D0, P[0], (!!int)::2\n",
+			"D0, P[1], (!!int)::3\n",
+		},
+	},
+	{
+		description: "Map array",
+		document:    `[1,2,3]`,
+		expression:  `map(. + 1)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[2, 3, 4]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{}`,
+		document2:  `{b: 12}`,
+		expression: `map_values(3)`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+			"D0, P[], (!!map)::{b: 3}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{}`,
+		document2:  `{b: 12}`,
+		expression: `map_values(3 + .)`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+			"D0, P[], (!!map)::{b: 15}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: 1, b: 2, c: 3}`,
+		document2:  `{x: 10, y: 20, z: 30}`,
+		expression: `map_values(. + 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 2, b: 3, c: 4}\n",
+			"D0, P[], (!!map)::{x: 11, y: 21, z: 31}\n",
+		},
+	},
+	{
+		description: "map values splat",
+		skipDoc:     true,
+		document:    `{a: 1, b: 2}`,
+		expression:  `map_values(. + 1)[]`,
+		expected: []string{
+			"D0, P[a], (!!int)::2\n",
+			"D0, P[b], (!!int)::3\n",
+		},
+	},
+	{
+		description: "Map object values",
+		document:    `{a: 1, b: 2, c: 3}`,
+		expression:  `map_values(. + 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 2, b: 3, c: 4}\n",
+		},
+	},
+	{
+		description:    "Map values and remove entries",
+		subdescription: "Entries for which the expression returns nothing are removed, like in jq.",
+		document:       `{a: 1, b: null, c: 3}`,
+		expression:     `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, c: 3}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: null, b: null}`,
+		expression: `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves a string key matching an integer key",
+		skipDoc:     true,
+		document:    `{"1": keep, 1: null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{\"1\": keep}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves an integer key matching a string key",
+		skipDoc:     true,
+		document:    `{1: keep, "1": null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{1: keep}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves a string key matching a boolean key",
+		skipDoc:     true,
+		document:    `{"true": keep, true: null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{\"true\": keep}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves a boolean key matching a string key",
+		skipDoc:     true,
+		document:    `{true: keep, "true": null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{true: keep}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[1, null, 2, null, 3]`,
+		expression: `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!seq)::[1, 2, 3]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[1, 2, 3, 4]`,
+		expression: `map_values(select(. > 2) | . * 10)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[30, 40]\n",
+		},
+	},
+	{
+		description: "Map filtering all map entries keeps the inline key comment",
+		skipDoc:     true,
+		document: `testMap: # A comment
+  a: 1
+  b: 2`,
+		expression: `.testMap |= map_values(select(. > 5))`,
+		expected: []string{
+			"D0, P[], (!!map)::testMap: {} # A comment\n",
+		},
+	},
+	{
+		description: "Map filtering all list entries keeps the inline key comment",
+		skipDoc:     true,
+		document: `testList: # A comment
+- 1
+- 2`,
+		expression: `.testList |= map_values(select(. > 5))`,
+		expected: []string{
+			"D0, P[], (!!map)::testList: [] # A comment\n",
+		},
+	},
+	{
+		description: "Map filtering evaluates every entry against the original parent",
+		skipDoc:     true,
+		document:    `{a: 1, b: 2, c: 3}`,
+		expression:  `map_values(select(. < 3 and (parent | length) > 2))`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, b: 2}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: {x: 1}, b: {x: 2}}`,
+		expression: `.a | map_values(select(. > 5))`,
+		expected: []string{
+			"D0, P[a], (!!map)::{}\n",
+		},
+	},
+}
+
+func TestMapOperatorScenarios(t *testing.T) {
+	for _, tt := range mapOperatorScenarios {
+		testScenario(t, &tt)
+	}
+	documentOperatorScenarios(t, "map", mapOperatorScenarios)
+}
